@@ -8,11 +8,10 @@
 ####
 
 team_name = 'Lucy K#7' # Only 10 chars displayed.
-strategy_name = 'betrayed if recent betray, Betray 1 Percent'
-strategy_description = '''The first 2 times, collude. 
-If their_score positive or higher than mine, betray first time. If they
-Haven't betrayed, then betray 15 percent of the time. Collude the rest. Check
-past 4 rounds, betray.
+strategy_name = 'lots of code'
+strategy_description = '''Main strategy is titfortat or doing the other
+person's last move. Combats alternating by betraying. Checks previous rounds
+for similar scenario. After 49 rounds, betray.
 '''
 import random
 
@@ -33,24 +32,62 @@ def move(my_history, their_history, my_score, their_score):
     # Analyze my_history and their_history and/or my_score and their_score.
     # Decide whether to return 'c' or 'b'.
     
-    betrayed = False
+    #final strategy
+    if len(their_history) == 0:
+        return 'c'
+    else:
+        recent_round_them = their_history[-1]
+        recent_round_me = my_history[-1]
+        if 'c' not in their_history: #if they always betray
+            return 'b'
+        elif 'cbc' in their_history[0:2] or 'bcb' in their_history[0:2]: #if they alternate, do this
+            return 'b'
+        for round in range(len(my_history)-1): #see E4, compares the history to see if there is something similar
+            prior_round_them = their_history[round]
+            prior_round_me = my_history[round]
+            if (prior_round_me == recent_round_me) and \
+                    (prior_round_them == recent_round_them):
+                return their_history[round]
+        if my_history[-1]=='c' and their_history[-1]=='b':
+            return 'b' 
+        elif len(my_history) >= 49 and 'b' not in my_history:
+            return 'b'
+        else:
+            return their_history[-1] #titfortat strategy
+        
     
+    #second strategy(fail)
+    '''
+    betrayed = False
     if len(their_history) == 0:
         return 'c'
     if len(their_history) >= 2:
-        if 'b' in my_history[-1] and 'c' in their_history[-1]:
+        if random.random()<0.01:
+            return 'b'
+        else:
+            return 'c'
+        if 'b' in their_history[-2:]:
+            return 'b'
+        elif 'b' in my_history[-1] and 'c' in their_history[-1]:
             return 'c'
         elif 'b' in my_history[-2] and 'b' in their_history[-1]:
             betrayed = True
             return 'b'
         elif betrayed == True:
             return 'b'
+    '''
+    #first strategy
+    '''
+    if len(their_history) == 0:
+        return 'c'
+    if 'b' in their_history[-2:]:
+        return 'b'
+    else:
+        if random.random()<0.01:
+            return 'b'
         else:
-            if random.random()<0.01:
-                return 'b'
-            else:
-                return 'c'
-    
+            return 'c'
+    '''
 def test_move(my_history, their_history, my_score, their_score, result):
     '''calls move(my_history, their_history, my_score, their_score)
     from this module. Prints error if return value != result.
