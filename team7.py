@@ -16,6 +16,7 @@ past 4 rounds, betray.
 '''
 import random
 
+
 def move(my_history, their_history, my_score, their_score):
     ''' Arguments accepted: my_history, their_history are strings.
     my_score, their_score are ints.
@@ -32,16 +33,23 @@ def move(my_history, their_history, my_score, their_score):
     # Analyze my_history and their_history and/or my_score and their_score.
     # Decide whether to return 'c' or 'b'.
     
+    betrayed = False
+    
     if len(their_history) == 0:
         return 'c'
-    if 'b' in their_history[-2:]:
-        return 'b'
-    else:
-        if random.random()<0.01:
+    if len(their_history) >= 2:
+        if 'b' in my_history[-1] and 'c' in their_history[-1]:
+            return 'c'
+        elif 'b' in my_history[-2] and 'b' in their_history[-1]:
+            betrayed = True
+            return 'b'
+        elif betrayed == True:
             return 'b'
         else:
-            return 'c'
-
+            if random.random()<0.01:
+                return 'b'
+            else:
+                return 'c'
     
 def test_move(my_history, their_history, my_score, their_score, result):
     '''calls move(my_history, their_history, my_score, their_score)
